@@ -1,0 +1,84 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-insert-test-users
+      author: your_name
+      changes:
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: name
+                  value: "Sylvanas"
+              - column:
+                  name: surname
+                  value: "Windrunner"
+              - column:
+                  name: birth_date
+                  value: "1990-05-15"
+              - column:
+                  name: email
+                  value: "sylvanas.windrunner@mail.ru"
+
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: name
+                  value: "Lich"
+              - column:
+                  name: surname
+                  value: "King"
+              - column:
+                  name: birth_date
+                  value: "1985-08-22"
+              - column:
+                  name: email
+                  value: "frostmourne@gmail.com"
+
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: name
+                  value: "Sarah"
+              - column:
+                  name: surname
+                  value: "Kerrigan"
+              - column:
+                  name: birth_date
+                  value: "1995-12-03"
+              - column:
+                  name: email
+                  value: "zergrush@mail.ru"
+
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: name
+                  value: "Jim"
+              - column:
+                  name: surname
+                  value: "Raynor"
+              - column:
+                  name: birth_date
+                  value: "1988-03-30"
+              - column:
+                  name: email
+                  value: "hyperion@gmail.com"
+
+        - insert:
+            tableName: users
+            columns:
+              - column:
+                  name: name
+                  value: "Vasya"
+              - column:
+                  name: surname
+                  value: "Pupkin"
+              - column:
+                  name: birth_date
+                  value: "1992-07-18"
+              - column:
+                  name: email
+                  value: "vasya.pupkin@gmail.com"

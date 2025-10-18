@@ -1,0 +1,85 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-insert-test-cards
+      author: your_name
+      changes:
+        - insert:
+            tableName: card_info
+            columns:
+              - column:
+                  name: user_id
+                  value: "1"
+              - column:
+                  name: number
+                  value: "4111111111111111"
+              - column:
+                  name: holder
+                  value: "SYLVANAS WINDRUNNER"
+              - column:
+                  name: expiration_date
+                  value: "2027-05-31"
+
+        - insert:
+            tableName: card_info
+            columns:
+              - column:
+                  name: user_id
+                  value: "2"
+              - column:
+                  name: number
+                  value: "5555555555554444"
+              - column:
+                  name: holder
+                  value: "LICH KING"
+              - column:
+                  name: expiration_date
+                  value: "2026-11-30"
+
+        - insert:
+            tableName: card_info
+            columns:
+              - column:
+                  name: user_id
+                  value: "3"
+              - column:
+                  name: number
+                  value: "4012888888881881"
+              - column:
+                  name: holder
+                  value: "SARAH KERRIGAN"
+              - column:
+                  name: expiration_date
+                  value: "2028-02-28"
+
+        - insert:
+            tableName: card_info
+            columns:
+              - column:
+                  name: user_id
+                  value: "4"
+              - column:
+                  name: number
+                  value: "5105105105105100"
+              - column:
+                  name: holder
+                  value: "JIM RAYNOR"
+              - column:
+                  name: expiration_date
+                  value: "2025-09-15"
+
+        - insert:
+            tableName: card_info
+            columns:
+              - column:
+                  name: user_id
+                  value: "5"
+              - column:
+                  name: number
+                  value: "378282246310005"
+              - column:
+                  name: holder
+                  value: "VASYA PUPKIN"
+              - column:
+                  name: expiration_date
+                  value: "2027-12-31"
+
