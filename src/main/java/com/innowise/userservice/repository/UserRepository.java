@@ -13,12 +13,12 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long>  {
+public interface UserRepository extends JpaRepository<User, Long> {
     @NonNull
-    Optional<User> findById( @NonNull Long id);
+    Optional<User> findById(@NonNull Long id);
 
     @NonNull
-    Page<User> findAll( @NonNull Pageable pageable);
+    Page<User> findAll(@NonNull Pageable pageable);
 
     Optional<User> findByEmail(String email);
 
