@@ -1,11 +1,12 @@
 package com.innowise.userservice.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 
 public class CardRequest {
-    @NotBlank
-    private long userId;
+    @NotNull
+    private Long userId;
 
     @NotBlank
     @Size(max = 19)
@@ -15,8 +16,9 @@ public class CardRequest {
     @Size(max = 255)
     private String holder;
 
-    @NotBlank
+    @NotNull
     @Future
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate expirationDate;
 
     public CardRequest() {}

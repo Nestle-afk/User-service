@@ -1,5 +1,6 @@
 package com.innowise.userservice.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
 import java.time.LocalDate;
 
@@ -12,8 +13,9 @@ public class UserRequest {
     @Size(max = 100)
     private String surname;
 
-    @NotBlank
+    @NotNull
     @Past
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
 
     @NotBlank

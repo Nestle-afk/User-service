@@ -1,11 +1,15 @@
 package com.innowise.userservice.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.time.LocalDate;
 
 public class CardResponse {
     private Long id;
     private String number;
     private String holder;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate expirationDate;
     private Long userId;
 

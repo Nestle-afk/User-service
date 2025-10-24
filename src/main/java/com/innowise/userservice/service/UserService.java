@@ -2,6 +2,7 @@ package com.innowise.userservice.service;
 
 import com.innowise.userservice.dto.UserRequest;
 import com.innowise.userservice.dto.UserResponse;
+import com.innowise.userservice.exception.UserNotFoundException;
 import com.innowise.userservice.model.User;
 import com.innowise.userservice.repository.UserRepository;
 import com.innowise.userservice.mapper.UserMapper;
@@ -32,7 +33,7 @@ public class UserService {
 
     public UserResponse getUserById(Long id) {
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
+                .orElseThrow(() -> new UserNotFoundException(id));
         return userMapper.toDto(user);
     }
 
@@ -49,7 +50,7 @@ public class UserService {
     @Transactional
     public UserResponse updateUser(Long id, UserRequest userRequest) {
         User currentUser = userRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
+                .orElseThrow(() -> new UserNotFoundException(id));
 
         userMapper.updateUserFromRequest(userRequest, currentUser);
         User updatedUser = userRepository.save(currentUser);
@@ -60,7 +61,7 @@ public class UserService {
     @Transactional
     public void deleteUserById(Long id) {
         if (!userRepository.existsById(id)) {
-            throw new ResponseStatusException(NOT_FOUND);
+            throw new UserNotFoundException(id);
         }
 
         userRepository.deleteUserById(id);

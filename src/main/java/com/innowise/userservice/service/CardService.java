@@ -2,6 +2,8 @@ package com.innowise.userservice.service;
 
 import com.innowise.userservice.dto.CardRequest;
 import com.innowise.userservice.dto.CardResponse;
+import com.innowise.userservice.exception.CardNotFoundException;
+import com.innowise.userservice.exception.UserNotFoundException;
 import com.innowise.userservice.model.*;
 import com.innowise.userservice.mapper.CardMapper;
 import com.innowise.userservice.repository.*;
@@ -9,9 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @Service
 @Transactional(readOnly = true)
@@ -27,8 +26,12 @@ public class CardService {
     }
 
     public CardResponse createCard(CardRequest cardRequest) {
+        if (cardRequest.getUserId() == null) {
+            throw new IllegalArgumentException("User ID cannot be null");
+        }
+
         User user = userRepository.findById(cardRequest.getUserId())
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + cardRequest.getUserId()));
 
         Card card = cardMapper.toEntity(cardRequest);
         card.setUser(user);
@@ -39,7 +42,7 @@ public class CardService {
 
     public CardResponse getCardById(Long id) {
         Card card = cardRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
+                .orElseThrow(() -> new CardNotFoundException(id));
 
         return cardMapper.toDto(card);
     }
@@ -51,11 +54,11 @@ public class CardService {
     @Transactional
     public CardResponse updateCard(Long id, CardRequest cardRequest) {
         Card currentCard = cardRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
+                .orElseThrow(() -> new CardNotFoundException(id));
 
         if (!currentCard.getUser().getId().equals(cardRequest.getUserId())) {
             User user = userRepository.findById(cardRequest.getUserId())
-                    .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
+                    .orElseThrow(() -> new CardNotFoundException(id));
 
             currentCard.setUser(user);
         }
@@ -69,7 +72,7 @@ public class CardService {
     @Transactional
     public void deleteCardById(Long id) {
         if (!cardRepository.existsById(id)) {
-            throw new ResponseStatusException(NOT_FOUND);
+            throw new CardNotFoundException(id);
         }
         cardRepository.deleteUserById(id);
     }
