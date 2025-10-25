@@ -130,17 +130,19 @@ class UserServiceTest {
         UserRequest updateRequest = new UserRequest("Jane", "Smith",
                 LocalDate.of(1995, 5, 5), "jane.smith@example.com");
 
-        User updatedUser = new User("Jane", "Smith",
-                LocalDate.of(1995, 5, 5), "jane.smith@example.com");
-        updatedUser.setId(userId);
+        User existingUser = new User("John", "Doe",
+                LocalDate.of(1990, 1, 1), "john.doe@example.com");
+        existingUser.setId(userId);
 
         UserResponse updatedResponse = new UserResponse(userId, "Jane", "Smith",
                 LocalDate.of(1995, 5, 5), "jane.smith@example.com");
 
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-        doNothing().when(userMapper).updateUserFromRequest(updateRequest, user);
-        when(userRepository.save(user)).thenReturn(updatedUser);
-        when(userMapper.toDto(updatedUser)).thenReturn(updatedResponse);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
+        doNothing().when(userMapper).updateUserFromRequest(updateRequest, existingUser);
+
+        doNothing().when(userRepository).updateUser(existingUser);
+
+        when(userMapper.toDto(eq(existingUser))).thenReturn(updatedResponse);
 
         UserResponse result = userService.updateUser(userId, updateRequest);
 
@@ -148,9 +150,9 @@ class UserServiceTest {
         assertEquals("Jane", result.getName());
         assertEquals("Smith", result.getSurname());
         verify(userRepository).findById(userId);
-        verify(userMapper).updateUserFromRequest(updateRequest, user);
-        verify(userRepository).save(user);
-        verify(userMapper).toDto(updatedUser);
+        verify(userMapper).updateUserFromRequest(updateRequest, existingUser);
+        verify(userRepository).updateUser(existingUser);
+        verify(userMapper).toDto(existingUser);
     }
 
     @Test

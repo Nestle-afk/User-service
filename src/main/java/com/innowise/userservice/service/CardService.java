@@ -25,6 +25,7 @@ public class CardService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public CardResponse createCard(CardRequest cardRequest) {
         if (cardRequest.getUserId() == null) {
             throw new IllegalArgumentException("User ID cannot be null");
@@ -58,15 +59,15 @@ public class CardService {
 
         if (!currentCard.getUser().getId().equals(cardRequest.getUserId())) {
             User user = userRepository.findById(cardRequest.getUserId())
-                    .orElseThrow(() -> new CardNotFoundException(id));
+                    .orElseThrow(() -> new UserNotFoundException(id));
 
             currentCard.setUser(user);
         }
 
         cardMapper.updateCardFromRequest(cardRequest, currentCard);
-        Card updatedCard = cardRepository.save(currentCard);
+        cardRepository.updateCard(currentCard);
 
-        return cardMapper.toDto(updatedCard);
+        return cardMapper.toDto(currentCard);
     }
 
     @Transactional

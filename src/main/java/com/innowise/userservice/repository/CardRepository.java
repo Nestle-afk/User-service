@@ -21,9 +21,13 @@ public interface CardRepository extends JpaRepository<Card, Long>  {
     Page<Card> findAll( @NonNull Pageable pageable);
 
     @Modifying
+    @Query("UPDATE Card c SET c.expirationDate = :#{#card.expirationDate}, c.holder = :#{#card.holder}, c.number = :#{#card.number}, c.user = :#{#card.user} WHERE c.id = :#{#card.id}")
+    void updateCard(@Param("card") Card card);
+
+    @Modifying
     @Query("UPDATE Card c SET c.expirationDate = :expirationDate, c.holder = :holder, c.number = :number WHERE c.id = :id")
-    void updateUser(@Param("id") Long id,
-                    @Param("holed") String holder,
+    void updateCard(@Param("id") Long id,
+                    @Param("holder") String holder,
                     @Param("number") String number,
                     @Param("expirationDate") java.time.LocalDate expirationDate);
 

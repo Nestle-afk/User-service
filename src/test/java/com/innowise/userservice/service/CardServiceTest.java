@@ -127,39 +127,38 @@ class CardServiceTest {
     @Test
     void updateCard_WhenCardExists_ShouldReturnUpdatedCardResponse() {
         Long cardId = 1L;
-        user.setId(1L);
-        card.setId(cardId);
+        Long userId = 1L;
+        CardRequest updateRequest = new CardRequest(userId, "New Holder", "1234567890123456",
+                LocalDate.of(2025, 12, 31));
 
-        CardRequest updateRequest = new CardRequest(2L, "8765432187654321",
-                "Jane Smith", LocalDate.of(2026, 6, 30));
+        User user = new User();
+        user.setId(userId);
 
-        User newUser = new User("Jane", "Smith",
-                LocalDate.of(1995, 5, 5), "jane.smith@example.com");
-        newUser.setId(2L);
+        Card existingCard = new Card();
+        existingCard.setId(cardId);
+        existingCard.setHolder("Old Holder");
+        existingCard.setNumber("1111111111111111");
+        existingCard.setExpirationDate(LocalDate.of(2020, 1, 1));
+        existingCard.setUser(user);
 
-        Card updatedCard = new Card(newUser, "8765432187654321",
-                "Jane Smith", LocalDate.of(2026, 6, 30));
-        updatedCard.setId(cardId);
+        CardResponse updatedResponse = new CardResponse(cardId, "1234567890123456", "New Holder",
+                LocalDate.of(2025, 12, 31), userId);
 
-        CardResponse updatedResponse = new CardResponse(cardId, "8765432187654321",
-                "Jane Smith", LocalDate.of(2026, 6, 30), 2L);
-
-        when(cardInfoRepository.findById(cardId)).thenReturn(Optional.of(card));
-        when(userRepository.findById(updateRequest.getUserId())).thenReturn(Optional.of(newUser));
-        doNothing().when(cardMapper).updateCardFromRequest(updateRequest, card);
-        when(cardInfoRepository.save(card)).thenReturn(updatedCard);
-        when(cardMapper.toDto(updatedCard)).thenReturn(updatedResponse);
+        when(cardInfoRepository.findById(cardId)).thenReturn(Optional.of(existingCard));
+        doNothing().when(cardMapper).updateCardFromRequest(updateRequest, existingCard);
+        doNothing().when(cardInfoRepository).updateCard(existingCard);
+        when(cardMapper.toDto(any(Card.class))).thenReturn(updatedResponse);
 
         CardResponse result = cardService.updateCard(cardId, updateRequest);
 
         assertNotNull(result);
-        assertEquals("8765432187654321", result.getNumber());
-        assertEquals("Jane Smith", result.getHolder());
+        assertEquals("New Holder", result.getHolder());
+        assertEquals("1234567890123456", result.getNumber());
         verify(cardInfoRepository).findById(cardId);
-        verify(userRepository).findById(updateRequest.getUserId());
-        verify(cardMapper).updateCardFromRequest(updateRequest, card);
-        verify(cardInfoRepository).save(card);
-        verify(cardMapper).toDto(updatedCard);
+        verify(cardMapper).updateCardFromRequest(updateRequest, existingCard);
+        verify(cardInfoRepository).updateCard(existingCard);
+        verify(cardMapper).toDto(existingCard);
+        verify(userRepository, never()).findById(any());
     }
 
     @Test

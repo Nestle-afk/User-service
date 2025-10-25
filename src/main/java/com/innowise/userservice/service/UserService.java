@@ -25,6 +25,7 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
+    @Transactional
     public UserResponse createUser(UserRequest userRequest) {
         User user = userMapper.toEntity(userRequest);
         User savedUser = userRepository.save(user);
@@ -53,9 +54,9 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException(id));
 
         userMapper.updateUserFromRequest(userRequest, currentUser);
-        User updatedUser = userRepository.save(currentUser);
+        userRepository.updateUser(currentUser);
 
-        return userMapper.toDto(updatedUser);
+        return userMapper.toDto(currentUser);
     }
 
     @Transactional
