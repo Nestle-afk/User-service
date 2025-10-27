@@ -6,6 +6,9 @@ import com.innowise.userservice.exception.UserNotFoundException;
 import com.innowise.userservice.model.User;
 import com.innowise.userservice.repository.UserRepository;
 import com.innowise.userservice.mapper.UserMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,10 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "users", key = "#result.id"),
+            @CacheEvict(value = "users", key = "#result.email")
+    })
     @Transactional
     public UserResponse createUser(UserRequest userRequest) {
         User user = userMapper.toEntity(userRequest);
@@ -32,12 +39,14 @@ public class UserService {
         return userMapper.toDto(savedUser);
     }
 
+    @Cacheable(value = "users", key = "#id")
     public UserResponse getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
         return userMapper.toDto(user);
     }
 
+    @Cacheable(value = "users", key = "#email")
     public UserResponse getUserByEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
@@ -48,6 +57,7 @@ public class UserService {
         return userRepository.findAll(pageable).map(userMapper::toDto);
     }
 
+    @CacheEvict(value = "users", key = "#id")
     @Transactional
     public UserResponse updateUser(Long id, UserRequest userRequest) {
         User currentUser = userRepository.findById(id)
@@ -59,6 +69,7 @@ public class UserService {
         return userMapper.toDto(currentUser);
     }
 
+    @CacheEvict(value = "users", key = "#id")
     @Transactional
     public void deleteUserById(Long id) {
         if (!userRepository.existsById(id)) {

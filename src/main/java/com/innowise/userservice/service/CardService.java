@@ -7,6 +7,7 @@ import com.innowise.userservice.exception.UserNotFoundException;
 import com.innowise.userservice.model.*;
 import com.innowise.userservice.mapper.CardMapper;
 import com.innowise.userservice.repository.*;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -18,11 +19,13 @@ public class CardService {
     private final CardRepository cardRepository;
     private final CardMapper cardMapper;
     private final UserRepository userRepository;
+    private final CacheManager cacheManager;
 
-    public CardService(CardRepository cardRepository, UserRepository userRepository, CardMapper cardMapper) {
+    public CardService(CardRepository cardRepository, UserRepository userRepository, CardMapper cardMapper, CacheManager cacheManager) {
         this.cardMapper = cardMapper;
         this.cardRepository = cardRepository;
         this.userRepository = userRepository;
+        this.cacheManager = cacheManager;
     }
 
     @Transactional
@@ -37,6 +40,8 @@ public class CardService {
         Card card = cardMapper.toEntity(cardRequest);
         card.setUser(user);
         Card savedCard = cardRepository.save(card);
+
+        cacheManager.getCache("users").evict(cardRequest.getUserId());
 
         return cardMapper.toDto(savedCard);
     }
@@ -57,6 +62,9 @@ public class CardService {
         Card currentCard = cardRepository.findById(id)
                 .orElseThrow(() -> new CardNotFoundException(id));
 
+        Long oldUserId = currentCard.getUser().getId();
+        Long newUserId = cardRequest.getUserId();
+
         if (!currentCard.getUser().getId().equals(cardRequest.getUserId())) {
             User user = userRepository.findById(cardRequest.getUserId())
                     .orElseThrow(() -> new UserNotFoundException(id));
@@ -67,6 +75,11 @@ public class CardService {
         cardMapper.updateCardFromRequest(cardRequest, currentCard);
         cardRepository.updateCard(currentCard);
 
+        cacheManager.getCache("users").evict(oldUserId);
+        if (!oldUserId.equals(newUserId)) {
+            cacheManager.getCache("users").evict(newUserId);
+        }
+
         return cardMapper.toDto(currentCard);
     }
 
@@ -75,6 +88,14 @@ public class CardService {
         if (!cardRepository.existsById(id)) {
             throw new CardNotFoundException(id);
         }
-        cardRepository.deleteUserById(id);
+
+        Card card = cardRepository.findById(id)
+                .orElseThrow(() -> new CardNotFoundException(id));
+
+        Long userId = card.getUser().getId();
+        cardRepository.deleteCardById(id);
+
+        cardRepository.deleteCardById(id);
+        cacheManager.getCache("users").evict(userId);
     }
 }

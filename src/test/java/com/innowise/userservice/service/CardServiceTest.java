@@ -199,14 +199,14 @@ class CardServiceTest {
     void deleteCard_WhenCardExists_ShouldDeleteCard() {
         Long cardId = 1L;
         when(cardInfoRepository.existsById(cardId)).thenReturn(true);
-        doNothing().when(cardInfoRepository).deleteUserById(cardId);
+        doNothing().when(cardInfoRepository).deleteCardById(cardId);
 
         // Act
         cardService.deleteCardById(cardId);
 
         // Assert
         verify(cardInfoRepository).existsById(cardId);
-        verify(cardInfoRepository).deleteUserById(cardId);
+        verify(cardInfoRepository).deleteCardById(cardId);
     }
 
     @Test
