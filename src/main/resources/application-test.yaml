@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/user_service
+    username: "postgres"
+    password: "1"
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+  cache:
+    type: redis
+    redis:
+      time-to-live: 5000
+      cache-null-values: false
