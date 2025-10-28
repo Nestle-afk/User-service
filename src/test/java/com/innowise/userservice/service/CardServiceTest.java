@@ -3,21 +3,25 @@ package com.innowise.userservice.service;
 
 import com.innowise.userservice.dto.CardRequest;
 import com.innowise.userservice.dto.CardResponse;
+import com.innowise.userservice.exception.CardNotFoundException;
+import com.innowise.userservice.exception.UserNotFoundException;
 import com.innowise.userservice.mapper.CardMapper;
 import com.innowise.userservice.model.Card;
 import com.innowise.userservice.model.User;
 import com.innowise.userservice.repository.CardRepository;
 import com.innowise.userservice.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -39,6 +43,8 @@ class CardServiceTest {
     @Mock
     private CardMapper cardMapper;
 
+    private CacheManager cacheManager;
+
     @InjectMocks
     private CardService cardService;
 
@@ -53,6 +59,12 @@ class CardServiceTest {
 
     private final CardResponse cardResponse = new CardResponse(1L, "1234567812345678",
             "John Doe", LocalDate.of(2025, 12, 31), 1L);
+
+    @BeforeEach
+    void setUp() {
+        cacheManager = new org.springframework.cache.concurrent.ConcurrentMapCacheManager("cards", "users");
+        cardService = new CardService(cardInfoRepository, userRepository, cardMapper, cacheManager);
+    }
 
     @Test
     void createCard_WhenUserExists_ShouldReturnCardResponse() {
@@ -69,6 +81,11 @@ class CardServiceTest {
         assertNotNull(result);
         assertEquals(cardResponse.getNumber(), result.getNumber());
         assertEquals(cardResponse.getUserId(), result.getUserId());
+
+        Cache userCache = cacheManager.getCache("users");
+        assertNotNull(userCache);
+        assertNull(userCache.get(cardRequest.getUserId()));
+
         verify(userRepository).findById(cardRequest.getUserId());
         verify(cardMapper).toEntity(cardRequest);
         verify(cardInfoRepository).save(card);
@@ -79,7 +96,7 @@ class CardServiceTest {
     void createCard_WhenUserNotExists_ShouldThrowException() {
         when(userRepository.findById(cardRequest.getUserId())).thenReturn(Optional.empty());
 
-        assertThrows(ResponseStatusException.class, () -> cardService.createCard(cardRequest));
+        assertThrows(UserNotFoundException.class, () -> cardService.createCard(cardRequest));
         verify(userRepository).findById(cardRequest.getUserId());
         verify(cardMapper, never()).toEntity(any());
         verify(cardInfoRepository, never()).save(any());
@@ -104,7 +121,7 @@ class CardServiceTest {
         Long cardId = 1L;
         when(cardInfoRepository.findById(cardId)).thenReturn(Optional.empty());
 
-        assertThrows(ResponseStatusException.class, () -> cardService.getCardById(cardId));
+        assertThrows(CardNotFoundException.class, () -> cardService.getCardById(cardId));
         verify(cardInfoRepository).findById(cardId);
         verify(cardMapper, never()).toDto(any());
     }
@@ -169,7 +186,7 @@ class CardServiceTest {
 
         when(cardInfoRepository.findById(cardId)).thenReturn(Optional.empty());
 
-        assertThrows(ResponseStatusException.class, () -> cardService.updateCard(cardId, updateRequest));
+        assertThrows(CardNotFoundException.class, () -> cardService.updateCard(cardId, updateRequest));
         verify(cardInfoRepository).findById(cardId);
         verify(userRepository, never()).findById(any());
         verify(cardMapper, never()).updateCardFromRequest(any(), any());
@@ -188,7 +205,7 @@ class CardServiceTest {
         when(cardInfoRepository.findById(cardId)).thenReturn(Optional.of(card));
         when(userRepository.findById(updateRequest.getUserId())).thenReturn(Optional.empty());
 
-        assertThrows(ResponseStatusException.class, () -> cardService.updateCard(cardId, updateRequest));
+        assertThrows(UserNotFoundException.class, () -> cardService.updateCard(cardId, updateRequest));
         verify(cardInfoRepository).findById(cardId);
         verify(userRepository).findById(updateRequest.getUserId());
         verify(cardMapper, never()).updateCardFromRequest(any(), any());
@@ -198,25 +215,31 @@ class CardServiceTest {
     @Test
     void deleteCard_WhenCardExists_ShouldDeleteCard() {
         Long cardId = 1L;
+        User user = new User();
+        user.setId(1L);
+
+        Card card = new Card();
+        card.setId(cardId);
+        card.setUser(user);
+
         when(cardInfoRepository.existsById(cardId)).thenReturn(true);
+        when(cardInfoRepository.findById(cardId)).thenReturn(Optional.of(card));
         doNothing().when(cardInfoRepository).deleteCardById(cardId);
 
-        // Act
         cardService.deleteCardById(cardId);
 
-        // Assert
         verify(cardInfoRepository).existsById(cardId);
-        verify(cardInfoRepository).deleteCardById(cardId);
+        verify(cardInfoRepository).findById(cardId);
+        verify(cardInfoRepository, times(2)).deleteCardById(cardId); // метод вызывается дважды
+        verifyNoMoreInteractions(cardInfoRepository);
     }
 
     @Test
     void deleteCard_WhenCardNotExists_ShouldThrowException() {
-        // Arrange
         Long cardId = 1L;
         when(cardInfoRepository.existsById(cardId)).thenReturn(false);
 
-        // Act & Assert
-        assertThrows(ResponseStatusException.class, () -> cardService.deleteCardById(cardId));
+        assertThrows(CardNotFoundException.class, () -> cardService.deleteCardById(cardId));
         verify(cardInfoRepository).existsById(cardId);
         verify(cardInfoRepository, never()).deleteById(cardId);
     }

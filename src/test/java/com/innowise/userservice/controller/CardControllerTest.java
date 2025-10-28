@@ -155,7 +155,6 @@ class CardControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L));
 
-        // Эта проверка НЕ должна выполняться если сервис не вызывался
         verify(cardService).updateCard(eq(1L), any(CardRequest.class));
     }
 

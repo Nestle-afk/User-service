@@ -54,7 +54,6 @@ class UserControllerTest {
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
 
-        // Настроим ObjectMapper для правильной работы с LocalDate
         objectMapper.findAndRegisterModules();
     }
 

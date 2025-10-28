@@ -2,6 +2,7 @@ package com.innowise.userservice.service;
 
 import com.innowise.userservice.dto.UserRequest;
 import com.innowise.userservice.dto.UserResponse;
+import com.innowise.userservice.exception.UserNotFoundException;
 import com.innowise.userservice.mapper.UserMapper;
 import com.innowise.userservice.model.User;
 import com.innowise.userservice.repository.UserRepository;
@@ -80,7 +81,7 @@ class UserServiceTest {
         Long userId = 1L;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        assertThrows(ResponseStatusException.class, () -> userService.getUserById(userId));
+        assertThrows(UserNotFoundException.class, () -> userService.getUserById(userId));
         verify(userRepository).findById(userId);
         verify(userMapper, never()).toDto(any());
     }
@@ -163,7 +164,7 @@ class UserServiceTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        assertThrows(ResponseStatusException.class, () -> userService.updateUser(userId, updateRequest));
+        assertThrows(UserNotFoundException.class, () -> userService.updateUser(userId, updateRequest));
         verify(userRepository).findById(userId);
         verify(userMapper, never()).updateUserFromRequest(any(), any());
         verify(userRepository, never()).save(any());
@@ -186,7 +187,7 @@ class UserServiceTest {
         Long userId = 1L;
         when(userRepository.existsById(userId)).thenReturn(false);
 
-        assertThrows(ResponseStatusException.class, () -> userService.deleteUserById(userId));
+        assertThrows(UserNotFoundException.class, () -> userService.deleteUserById(userId));
         verify(userRepository).existsById(userId);
         verify(userRepository, never()).deleteById(userId);
     }

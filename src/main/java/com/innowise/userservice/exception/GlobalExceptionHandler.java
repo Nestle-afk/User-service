@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.stream.Collectors;
 
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = "com.innowise.userservice.controller")
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
