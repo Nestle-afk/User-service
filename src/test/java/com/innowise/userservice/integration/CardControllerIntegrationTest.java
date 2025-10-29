@@ -1,6 +1,7 @@
 package com.innowise.userservice.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.innowise.userservice.UserServiceApplication;
 import com.innowise.userservice.dto.CardRequest;
 import com.innowise.userservice.model.Card;
 import com.innowise.userservice.model.User;
@@ -24,7 +25,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
+@SpringBootTest(classes = UserServiceApplication.class)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 class CardControllerIntegrationTest {

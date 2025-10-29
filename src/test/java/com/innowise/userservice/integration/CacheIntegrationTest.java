@@ -1,5 +1,6 @@
 package com.innowise.userservice.integration;
 
+import com.innowise.userservice.UserServiceApplication;
 import com.innowise.userservice.dto.UserRequest;
 import com.innowise.userservice.dto.UserResponse;
 import com.innowise.userservice.model.User;
@@ -23,7 +24,7 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
+@SpringBootTest(classes = UserServiceApplication.class)
 @Testcontainers
 @ActiveProfiles("test")
 @Transactional

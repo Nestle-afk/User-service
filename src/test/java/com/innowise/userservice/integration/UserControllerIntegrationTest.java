@@ -1,6 +1,7 @@
 package com.innowise.userservice.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.innowise.userservice.UserServiceApplication;
 import com.innowise.userservice.dto.UserRequest;
 import com.innowise.userservice.model.User;
 import com.innowise.userservice.repository.UserRepository;
@@ -19,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
+@SpringBootTest(classes = UserServiceApplication.class)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 class UserControllerIntegrationTest {
