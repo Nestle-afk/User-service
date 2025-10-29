@@ -21,9 +21,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(classes = UserServiceApplication.class)
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
-class UserControllerIntegrationTest {
+class UserControllerIntegrationTest extends com.innowise.userservice.it.BaseIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;

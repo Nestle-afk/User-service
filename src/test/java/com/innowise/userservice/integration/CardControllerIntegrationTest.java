@@ -26,9 +26,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(classes = UserServiceApplication.class)
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
-class CardControllerIntegrationTest {
+class CardControllerIntegrationTest extends com.innowise.userservice.it.BaseIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -49,7 +49,6 @@ class CardControllerIntegrationTest {
         cardRepository.deleteAll();
         userRepository.deleteAll();
 
-        // создаём пользователя, чтобы привязать карту
         testUser = userRepository.save(new User("Jane", "Doe", LocalDate.of(1990, 2, 2), "jane@example.com"));
     }
 
