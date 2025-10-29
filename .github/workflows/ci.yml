@@ -24,11 +24,23 @@ jobs:
           --health-timeout=5s
           --health-retries=5
 
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping || exit 1"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=10
+
     env:
       SPRING_PROFILES_ACTIVE: test
       SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5433/user_service
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: "1"
+      SPRING_REDIS_HOST: localhost
+      SPRING_REDIS_PORT: "6379"
 
     steps:
       - name: Checkout repository
