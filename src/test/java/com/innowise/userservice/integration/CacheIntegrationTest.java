@@ -3,7 +3,6 @@ package com.innowise.userservice.integration;
 import com.innowise.userservice.UserServiceApplication;
 import com.innowise.userservice.dto.UserRequest;
 import com.innowise.userservice.dto.UserResponse;
-import com.innowise.userservice.it.BaseIntegrationTest;
 import com.innowise.userservice.model.User;
 import com.innowise.userservice.repository.UserRepository;
 import com.innowise.userservice.service.UserService;
@@ -29,7 +28,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Testcontainers
 @ActiveProfiles("test")
 @Transactional
-class CacheIntegrationTest extends BaseIntegrationTest {
+class CacheIntegrationTest {
 
     @Container
     static final GenericContainer<?> redis =

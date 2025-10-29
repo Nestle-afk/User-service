@@ -1,9 +1,7 @@
 package com.innowise.userservice.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.innowise.userservice.UserServiceApplication;
 import com.innowise.userservice.dto.UserRequest;
-import com.innowise.userservice.it.BaseIntegrationTest;
 import com.innowise.userservice.model.User;
 import com.innowise.userservice.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,10 +19,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(classes = UserServiceApplication.class)
-@AutoConfigureMockMvc(addFilters = false)
+@SpringBootTest
+@AutoConfigureMockMvc
 @ActiveProfiles("test")
-class UserControllerIntegrationTest extends BaseIntegrationTest {
+class UserControllerIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
