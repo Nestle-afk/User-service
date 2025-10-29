@@ -15,3 +15,12 @@ spring:
     enabled: false
   cache:
     type: none
+
+logging:
+  level:
+    root: INFO
+    org.springframework.test.web.servlet.result: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.boot.test.context.SpringBootTestContextBootstrapper: DEBUG

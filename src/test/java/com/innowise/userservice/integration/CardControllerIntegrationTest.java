@@ -22,6 +22,7 @@ import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @Testcontainers
@@ -128,6 +129,7 @@ class CardControllerIntegrationTest {
         Card saved = cardRepository.save(new Card(testUser, "4000000000000003", "JANE DOE", LocalDate.of(2026, 5, 5)));
 
         mockMvc.perform(delete("/api/cards/{id}", saved.getId()))
+                .andDo(print())
                 .andExpect(status().isNoContent());
 
         assertThat(cardRepository.existsById(saved.getId())).isFalse();
