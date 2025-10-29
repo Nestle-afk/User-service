@@ -25,7 +25,7 @@ jobs:
           cache: maven
 
       - name: Build with Maven
-        run: mvn -B clean package
+        run: mvn -B clean verify -Dspring.profiles.active=test -e -X
 
       - name: Run Tests
         env:
