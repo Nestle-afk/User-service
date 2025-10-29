@@ -3,6 +3,7 @@ package com.innowise.userservice.integration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.innowise.userservice.UserServiceApplication;
 import com.innowise.userservice.dto.CardRequest;
+import com.innowise.userservice.it.BaseIntegrationTest;
 import com.innowise.userservice.model.Card;
 import com.innowise.userservice.model.User;
 import com.innowise.userservice.repository.CardRepository;
@@ -26,9 +27,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(classes = UserServiceApplication.class)
-@AutoConfigureMockMvc
+@AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
-class CardControllerIntegrationTest {
+class CardControllerIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -49,7 +50,6 @@ class CardControllerIntegrationTest {
         cardRepository.deleteAll();
         userRepository.deleteAll();
 
-        // создаём пользователя, чтобы привязать карту
         testUser = userRepository.save(new User("Jane", "Doe", LocalDate.of(1990, 2, 2), "jane@example.com"));
     }
 
