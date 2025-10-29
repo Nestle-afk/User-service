@@ -19,6 +19,7 @@
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
         <org.apache.commons.version>3.18.0</org.apache.commons.version>
         <jdk.attach.allowAttachSelf>true</jdk.attach.allowAttachSelf>
+        <sonar.organization>nestle-afk</sonar.organization>
     </properties>
     <dependencies>
         <dependency>
