@@ -9,38 +9,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_DB: user_service
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: "1"
-        ports:
-          - 5433:5432
-        options: >-
-          --health-cmd="pg_isready -U postgres -d user_service"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd="redis-cli ping || exit 1"
-          --health-interval=5s
-          --health-timeout=3s
-          --health-retries=10
-
     env:
       SPRING_PROFILES_ACTIVE: test
-      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5433/user_service
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: "1"
-      SPRING_REDIS_HOST: localhost
-      SPRING_REDIS_PORT: "6379"
 
     steps:
       - name: Checkout repository
@@ -57,6 +27,17 @@ jobs:
 
       - name: Build & Test (Maven verify)
         run: mvn -B -ntp clean verify -Dspring.profiles.active=test
+
+      - name: Dump Surefire reports on failure
+        if: failure()
+        run: |
+          echo "=== surefire reports ==="
+          if [ -d target/surefire-reports ]; then
+            for f in target/surefire-reports/*.txt; do
+              echo "----- $f -----"
+              sed -n '1,400p' "$f"
+            done
+          fi
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
