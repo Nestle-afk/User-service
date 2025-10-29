@@ -6,9 +6,10 @@ spring:
     password: password
 
   jpa:
+    show-sql: true
     hibernate:
       ddl-auto: create-drop
-    show-sql: true
+    defer-datasource-initialization: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
@@ -17,5 +18,14 @@ spring:
     console:
       enabled: true
 
+  sql:
+    init:
+      mode: never
+
   cache:
     type: none
+
+  flyway:
+    enabled: false
+  liquibase:
+    enabled: false
