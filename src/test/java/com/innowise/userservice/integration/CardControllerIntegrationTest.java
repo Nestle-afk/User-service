@@ -124,14 +124,16 @@ class CardControllerIntegrationTest {
                 .andExpect(jsonPath("$.holder").value("NEW HOLDER"));
     }
 
+
     @Test
     void whenDeleteCard_thenCardIsRemoved() throws Exception {
         Card saved = cardRepository.save(new Card(testUser, "4000000000000003", "JANE DOE", LocalDate.of(2026, 5, 5)));
 
         mockMvc.perform(delete("/api/cards/{id}", saved.getId()))
-                .andDo(print())
+                .andDo(print()) // 👈 добавь эту строчку
                 .andExpect(status().isNoContent());
 
         assertThat(cardRepository.existsById(saved.getId())).isFalse();
     }
 }
+
