@@ -26,6 +26,8 @@ jobs:
         run: mvn -B clean package
 
       - name: Run Tests
+        env:
+          SPRING_PROFILES_ACTIVE: test
         run: mvn test
 
       - name: SonarCloud Scan
