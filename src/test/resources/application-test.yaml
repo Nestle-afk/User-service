@@ -7,9 +7,6 @@ spring:
     hibernate:
       ddl-auto: none
     show-sql: true
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
 
   liquibase:
     enabled: true
@@ -17,16 +14,9 @@ spring:
     contexts: schema
     drop-first: true
 
-  flyway:
-    enabled: false
+  cache:
+    type: redis
 
-  sql:
-    init:
-      mode: never
-
-logging:
-  level:
-    org.springframework.test.web.servlet.result: DEBUG
-    org.springframework.web: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  data:
+    redis:
+      timeout: 2s
