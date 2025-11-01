@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -39,6 +40,9 @@ class CardControllerIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private CacheManager cacheManager;
+
     private User testUser;
 
     @BeforeEach
@@ -47,6 +51,9 @@ class CardControllerIntegrationTest extends AbstractIntegrationTest {
         userRepository.deleteAll();
 
         testUser = userRepository.save(new User("Jane", "Doe", LocalDate.of(1990, 2, 2), "jane@example.com"));
+        if (cacheManager.getCache("users") != null) {
+            cacheManager.getCache("users").clear();
+        }
     }
 
     @Test
@@ -97,7 +104,12 @@ class CardControllerIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void whenUpdateCard_thenCardIsUpdated() throws Exception {
-        Card saved = cardRepository.save(new Card(testUser, "4000000000000002", "OLD HOLDER", LocalDate.of(2025, 10, 1)));
+        Card saved = cardRepository.save(new Card(
+                testUser,
+                "4000000000000002",
+                "OLD HOLDER",
+                LocalDate.of(2025, 10, 1)
+        ));
 
         CardRequest update = new CardRequest();
         update.setUserId(testUser.getId());
@@ -119,7 +131,7 @@ class CardControllerIntegrationTest extends AbstractIntegrationTest {
         Card saved = cardRepository.save(new Card(testUser, "4000000000000003", "JANE DOE", LocalDate.of(2026, 5, 5)));
 
         mockMvc.perform(delete("/api/cards/{id}", saved.getId()))
-                .andDo(print()) // 👈 добавь эту строчку
+                .andDo(print())
                 .andExpect(status().isNoContent());
 
         assertThat(cardRepository.existsById(saved.getId())).isFalse();

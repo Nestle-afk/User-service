@@ -63,7 +63,7 @@ class CardServiceTest {
     @BeforeEach
     void setUp() {
         cacheManager = new org.springframework.cache.concurrent.ConcurrentMapCacheManager("cards", "users");
-        cardService = new CardService(cardInfoRepository, userRepository, cardMapper, cacheManager);
+        cardService = new CardService(cardInfoRepository, userRepository, cardMapper);
     }
 
     @Test
@@ -222,25 +222,25 @@ class CardServiceTest {
         card.setId(cardId);
         card.setUser(user);
 
-        when(cardInfoRepository.existsById(cardId)).thenReturn(true);
         when(cardInfoRepository.findById(cardId)).thenReturn(Optional.of(card));
         doNothing().when(cardInfoRepository).deleteCardById(cardId);
 
         cardService.deleteCardById(cardId);
 
-        verify(cardInfoRepository).existsById(cardId);
         verify(cardInfoRepository).findById(cardId);
-        verify(cardInfoRepository, times(2)).deleteCardById(cardId); // метод вызывается дважды
+        verify(cardInfoRepository).deleteCardById(cardId);
         verifyNoMoreInteractions(cardInfoRepository);
     }
 
     @Test
     void deleteCard_WhenCardNotExists_ShouldThrowException() {
         Long cardId = 1L;
-        when(cardInfoRepository.existsById(cardId)).thenReturn(false);
+
+        when(cardInfoRepository.findById(cardId)).thenReturn(Optional.empty());
 
         assertThrows(CardNotFoundException.class, () -> cardService.deleteCardById(cardId));
-        verify(cardInfoRepository).existsById(cardId);
-        verify(cardInfoRepository, never()).deleteById(cardId);
+
+        verify(cardInfoRepository).findById(cardId);
+        verify(cardInfoRepository, never()).deleteCardById(anyLong());
     }
 }

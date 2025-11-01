@@ -7,6 +7,7 @@ import com.innowise.userservice.model.User;
 import com.innowise.userservice.repository.UserRepository;
 import com.innowise.userservice.mapper.UserMapper;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
@@ -28,9 +29,9 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
-    @Caching(evict = {
-            @CacheEvict(value = "users", key = "#result.id"),
-            @CacheEvict(value = "users", key = "#result.email")
+    @Caching(put = {
+            @CachePut(value = "users", key = "#result.id"),
+            @CachePut(value = "users", key = "#result.email")
     })
     @Transactional
     public UserResponse createUser(UserRequest userRequest) {
