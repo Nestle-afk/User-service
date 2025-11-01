@@ -1,0 +1,83 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Environment info
+        run: |
+          echo "=== Java ==="
+          java -version
+          echo "=== Maven ==="
+          mvn -version
+          echo "=== Docker ==="
+          docker info
+          echo "=== Disk / Memory ==="
+          df -h
+          free -h
+
+      - name: Build & Test (single run)
+        run: mvn -B -ntp clean verify
+
+      - name: Print test reports on failure
+        if: failure()
+        run: |
+          echo "==== Surefire TXT ===="
+          if [ -d target/surefire-reports ]; then find target/surefire-reports -name "*.txt" -maxdepth 1 -print -exec sed -n '1,200p' {} \;; fi
+          echo "==== Failsafe TXT ===="
+          if [ -d target/failsafe-reports ]; then find target/failsafe-reports -name "*.txt" -maxdepth 1 -print -exec sed -n '1,200p' {} \;; fi
+
+      - name: Upload JUnit reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-reports
+          path: |
+            target/surefire-reports
+            target/failsafe-reports
+          if-no-files-found: ignore
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=Nestle-afk_User-service
+            -Dsonar.organization=nestle-afk
+            -Dsonar.java.binaries=target/classes
+
+      - name: Build Docker image
+        run: docker build -t user-service:latest .
+
+      - name: Save Docker image as artifact
+        run: docker save user-service:latest -o user-service-image.tar
+
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: user-service-docker-image
+          path: user-service-image.tar
